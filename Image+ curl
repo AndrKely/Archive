@@ -1,0 +1,24 @@
+ public function UploadImageProduct($idProduct,$filepath){
+        $url = $this->PS_SHOP_PATH.'api/images/products/'.$idProduct.'/?ws_key='.$this->PS_WS_AUTH_KEY.'';
+
+        $filename = realpath($filepath);
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimetype = $finfo->file($filename);
+        $ch = curl_init($url);
+        $cfile = curl_file_create($filename, $mimetype);
+        $data = [
+            'image' => $cfile,
+        ];
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+
+       
+        $r = curl_getinfo($ch);
+
+        $xmlResponse = new SimpleXMLElement($result);
+        $idImage = (string) $xmlResponse->image->id;
+
+        return $idImage;
+    }
